@@ -1,7 +1,32 @@
-export default function App() {
+// App.tsx
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext';
+import { AdminRoute } from './components/AdminRoute';
+import AdminLogin from './pages/AdminLogin';
+import MainLayout from './layouts/MainLayout';
+import './index.css';
+import './App.css';
+
+function App() {
   return (
-    <div className="bg-blue-500 min-h-screen flex justify-center items-center">
-      <h1 className="text-white text-3xl font-bold">Hello Tailwind + Vite!</h1>
-    </div>
-  )
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/login" element={<AdminLogin />} />
+          <Route 
+            path="/admin" 
+            element={
+              <AdminRoute>
+                <MainLayout />
+              </AdminRoute>
+            } 
+          />
+          <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route path="*" element={<Navigate to="/login" replace />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
+  );
 }
+
+export default App;

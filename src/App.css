@@ -1,42 +1,305 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+/* ============================================
+   App.css - Component-Specific Styles
+   ============================================ */
+
+/* Enhanced Title Animation */
+.card .title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  animation: slideInFromLeft 0.6s ease-out;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
+@keyframes slideInFromLeft {
+  0% {
+    opacity: 0;
+    transform: translateX(-20px);
   }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Glowing Dot Effect */
+.card .title::after {
+  content: '';
+  display: inline-block;
+  height: 12px;
+  width: 12px;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(99, 102, 241, 1) 0%, rgba(139, 92, 246, 0.8) 50%, transparent 70%);
+  box-shadow: 
+    0 0 10px rgba(99, 102, 241, 0.8),
+    0 0 20px rgba(99, 102, 241, 0.5),
+    0 0 30px rgba(99, 102, 241, 0.3);
+  animation: glowPulse 2s ease-in-out infinite;
+}
+
+@keyframes glowPulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+    box-shadow: 
+      0 0 10px rgba(99, 102, 241, 0.8),
+      0 0 20px rgba(99, 102, 241, 0.5),
+      0 0 30px rgba(99, 102, 241, 0.3);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.15);
+    box-shadow: 
+      0 0 15px rgba(99, 102, 241, 1),
+      0 0 30px rgba(99, 102, 241, 0.7),
+      0 0 45px rgba(99, 102, 241, 0.5);
+  }
+}
+
+/* Enhanced Table Wrapper */
+.table-wrapper {
+  backdrop-filter: saturate(120%) blur(12px);
+  position: relative;
+  overflow: hidden;
+}
+
+.table-wrapper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.1), transparent);
+  transition: left 0.8s;
+  pointer-events: none;
+}
+
+.table-wrapper:hover::before {
+  left: 100%;
+}
+
+/* Table Header Enhancements */
+thead th {
+  user-select: none;
+  position: relative;
+}
+
+thead th:active {
+  transform: scale(0.98);
+}
+
+/* Sorting Indicator */
+thead th.sortable::after {
+  content: '⇅';
+  margin-left: 8px;
+  opacity: 0.3;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+thead th.sortable:hover::after {
+  opacity: 0.7;
+}
+
+thead th.sorted-asc::after {
+  content: '↑';
+  opacity: 1;
+  color: var(--brand);
+}
+
+thead th.sorted-desc::after {
+  content: '↓';
+  opacity: 1;
+  color: var(--brand);
+}
+
+/* Row Animations */
+tbody tr {
+  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  animation: fadeInRow 0.3s ease-out backwards;
+}
+
+tbody tr:nth-child(1) { animation-delay: 0.05s; }
+tbody tr:nth-child(2) { animation-delay: 0.1s; }
+tbody tr:nth-child(3) { animation-delay: 0.15s; }
+tbody tr:nth-child(4) { animation-delay: 0.2s; }
+tbody tr:nth-child(5) { animation-delay: 0.25s; }
+
+@keyframes fadeInRow {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Enhanced Row Hover Effect */
+tbody tr:hover {
+  transform: translateX(4px);
+  background: linear-gradient(90deg, rgba(99, 102, 241, 0.08), rgba(139, 92, 246, 0.04));
+  box-shadow: inset 3px 0 0 0 var(--brand);
+}
+
+/* Cell Content Animations */
+tbody td {
+  position: relative;
+}
+
+tbody tr:hover td {
+  color: var(--text);
+}
+
+tbody tr:hover .number {
+  color: var(--brand);
+  font-weight: 700;
+}
+
+/* Badge Hover Effects */
+.badge {
+  cursor: default;
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.badge:hover {
+  transform: scale(1.05);
+  filter: brightness(1.2);
+}
+
+.badge.success:hover {
+  box-shadow: 0 0 30px var(--success-glow);
+}
+
+.badge.warning:hover {
+  box-shadow: 0 0 30px var(--warning-glow);
+}
+
+.badge.danger:hover {
+  box-shadow: 0 0 30px var(--danger-glow);
+}
+
+/* Enhanced Pagination Buttons */
+.page-btn {
+  position: relative;
+  z-index: 1;
+}
+
+.page-btn:active:not([disabled]) {
+  transform: scale(0.95);
+}
+
+.page-btn.active {
+  animation: pageActive 0.3s ease-out;
+}
+
+@keyframes pageActive {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Loading State (Optional) */
+.table-wrapper.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.table-wrapper.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 40px;
+  height: 40px;
+  margin: -20px 0 0 -20px;
+  border: 3px solid rgba(99, 102, 241, 0.2);
+  border-top-color: var(--brand);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
   to {
     transform: rotate(360deg);
   }
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
+/* Empty State Styling */
+tbody tr td[colspan] {
+  text-align: center;
+  padding: 60px 20px;
+  font-size: 16px;
+  color: var(--muted);
+  background: linear-gradient(180deg, transparent, rgba(99, 102, 241, 0.03), transparent);
+}
+
+/* Controls Animation */
+.controls > * {
+  animation: fadeIn 0.4s ease-out backwards;
+}
+
+.controls > *:nth-child(1) { animation-delay: 0.1s; }
+.controls > *:nth-child(2) { animation-delay: 0.2s; }
+.controls > *:nth-child(3) { animation-delay: 0.3s; }
+.controls > *:nth-child(4) { animation-delay: 0.4s; }
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-.card {
-  padding: 2em;
+/* Focus Visible for Accessibility */
+.input:focus-visible,
+.select:focus-visible,
+.page-btn:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
 }
 
-.read-the-docs {
-  color: #888;
+/* Number Cell Enhancement */
+.number {
+  font-feature-settings: 'tnum';
+  letter-spacing: 0.5px;
+}
+
+/* Micro-interactions for Better UX */
+.select:hover,
+.input:hover {
+  transform: translateY(-1px);
+}
+
+.select:active,
+.input:focus {
+  transform: translateY(0);
+}
+
+/* Card Body Animation */
+.card-body {
+  animation: fadeInUp 0.5s ease-out 0.2s backwards;
+}
+
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
