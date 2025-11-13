@@ -26,8 +26,8 @@ interface ApprovalRequest {
 const mockRequests: ApprovalRequest[] = [
   {
     id: 'req-1',
-    requester: 'Alice Johnson',
-    email: 'alice@example.com',
+    requester: 'Mimi',
+    email: 'mimi@example.com',
     requestType: 'Withdrawal',
     amount: 5000,
     submittedAt: '2025-11-10 09:12',
@@ -39,8 +39,8 @@ const mockRequests: ApprovalRequest[] = [
   },
   {
     id: 'req-2',
-    requester: 'Bob Martin',
-    email: 'bob@example.com',
+    requester: 'Syafiq',
+    email: 'syafiq@example.com',
     requestType: 'KYC Update',
     submittedAt: '2025-11-08 14:05',
     status: 'pending',
@@ -48,12 +48,12 @@ const mockRequests: ApprovalRequest[] = [
       { id: 'd3', type: 'ID Card', filename: 'bob-id.png', url: '', uploadedAt: '2025-11-08 14:03' }
     ]
   },
-  { id: 'req-3', requester: 'Clara Oswald', email: 'clara@example.com', requestType: 'Account Closure', submittedAt: '2025-10-29 11:22', status: 'approved', kyc: [] },
-  { id: 'req-4', requester: 'Daniel Smith', email: 'daniel@example.com', requestType: 'Large Transfer', amount: 25000, submittedAt: '2025-11-01 16:40', status: 'rejected', kyc: [] },
+  { id: 'req-3', requester: 'Abu', email: 'abu@example.com', requestType: 'Account Closure', submittedAt: '2025-10-29 11:22', status: 'approved', kyc: [] },
+  { id: 'req-4', requester: 'Danish', email: 'danish@example.com', requestType: 'Large Transfer', amount: 25000, submittedAt: '2025-11-01 16:40', status: 'rejected', kyc: [] },
   {
     id: 'req-5',
-    requester: 'Eva Green',
-    email: 'eva@example.com',
+    requester: 'Charles',
+    email: 'charles@example.com',
     requestType: 'Withdrawal',
     amount: 1200,
     submittedAt: '2025-11-12 08:03',

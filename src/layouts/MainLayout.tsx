@@ -1,5 +1,5 @@
 // src/layouts/MainLayout.tsx
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import Dashboard from '../pages/Dashboard';
@@ -9,12 +9,23 @@ import ApprovalManagement from '../pages/ApprovalManagement';
 
 type Route = 'dashboard' | 'usermanagement' | 'clients' | 'approval' | 'ticketing' | 'reports' | 'settings';
 
+const ROUTE_STORAGE_KEY = 'admin_current_route';
+
 export default function MainLayout() {
   const [profileOpen, setProfileOpen] = useState(false);
   const [sidebarExpanded, setSidebarExpanded] = useState(false);
-  const [route, setRoute] = useState<Route>('dashboard');
+  const [route, setRoute] = useState<Route>(() => {
+    // Load route from localStorage, default to 'dashboard'
+    const stored = localStorage.getItem(ROUTE_STORAGE_KEY);
+    return (stored as Route) || 'dashboard';
+  });
   const navigate = useNavigate();
   const { logout, user } = useAuth();
+
+  // Save route to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem(ROUTE_STORAGE_KEY, route);
+  }, [route]);
 
   const handleLogout = () => {
     logout();
