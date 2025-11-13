@@ -7,7 +7,10 @@ interface AdminRouteProps {
 }
 
 export function AdminRoute({ children }: AdminRouteProps) {
-  const { isAuthenticated, isAdmin } = useAuth();
+  const { isAuthenticated, isAdmin, isLoading } = useAuth();
+
+  // avoid redirecting while auth is being read from storage
+  if (isLoading) return null
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;

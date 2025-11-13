@@ -8,6 +8,7 @@ interface AuthContextType extends AuthState {
   login: (token: string, user: User) => void;
   logout: () => void;
   isAdmin: boolean;
+  isLoading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -18,6 +19,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     user: null,
     token: null,
   });
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     const storedAuth = getStoredAuth();
@@ -28,6 +30,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         token: storedAuth.token,
       });
     }
+    // mark loading finished after attempting to load stored auth
+    setIsLoading(false)
   }, []);
 
   const login = (token: string, user: User) => {
@@ -55,6 +59,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         login,
         logout,
         isAdmin: isAdmin(authState.user),
+        isLoading,
       }}
     >
       {children}

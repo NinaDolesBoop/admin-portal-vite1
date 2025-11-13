@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import '../css/Dashboard.css'  // Add this line
 
 type SparkProps = {
@@ -8,6 +8,7 @@ type SparkProps = {
   stroke?: string
   fill?: string
   showGradient?: boolean
+  animationMs?: number
 }
 
 function Sparkline({ 
@@ -17,6 +18,7 @@ function Sparkline({
   stroke = '#8b5cf6', 
   fill = 'rgba(139,92,246,0.18)',
   showGradient = true 
+  , animationMs = 3500
 }: SparkProps) {
   const path = useMemo(() => {
     if (data.length === 0) return ''
@@ -43,6 +45,40 @@ function Sparkline({
 
   const gradientId = useMemo(() => `gradient-${Math.random().toString(36).substr(2, 9)}`, [])
 
+  const lineRef = useRef<SVGPathElement | null>(null)
+  const areaRef = useRef<SVGPathElement | null>(null)
+
+  // Animate stroke drawing + area fade when path changes
+  useEffect(() => {
+    const el = lineRef.current
+    const areaEl = areaRef.current
+    if (!el) return
+    try {
+      const len = el.getTotalLength()
+      // initialize stroke dash
+      el.style.transition = 'none'
+      el.style.strokeDasharray = String(len)
+      el.style.strokeDashoffset = String(len)
+      // area fade init
+      if (areaEl) {
+        areaEl.style.transition = 'none'
+        areaEl.style.opacity = '0'
+      }
+      // force reflow
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+      el.getBoundingClientRect()
+      // trigger transition
+      el.style.transition = `stroke-dashoffset ${animationMs}ms cubic-bezier(.22,.9,.27,1)`
+      el.style.strokeDashoffset = '0'
+      if (areaEl) {
+        areaEl.style.transition = `opacity ${Math.round(animationMs * 0.75)}ms ease-out ${Math.round(animationMs * 0.1)}ms`
+        areaEl.style.opacity = '1'
+      }
+    } catch (e) {
+      // fallback: do nothing
+    }
+  }, [path, animationMs])
+
   return (
     <svg className="spark" width={width} height={height} viewBox={`0 0 ${width} ${height}`} role="img" aria-label="Sparkline chart">
       {showGradient && (
@@ -53,8 +89,9 @@ function Sparkline({
           </linearGradient>
         </defs>
       )}
-      <path d={area} fill={showGradient ? `url(#${gradientId})` : fill} />
+      <path ref={areaRef} d={area} fill={showGradient ? `url(#${gradientId})` : fill} style={{opacity: 1}} />
       <path 
+        ref={lineRef}
         d={path} 
         fill="none" 
         stroke={stroke} 
@@ -112,7 +149,8 @@ const ArrowDownIcon = () => (
 )
 
 export default function Dashboard() {
-  const [selectedPeriod, setSelectedPeriod] = useState('12M')
+  const [usersPeriod, setUsersPeriod] = useState('12M')
+  const [volumePeriod, setVolumePeriod] = useState('12M')
 
   // Mock metrics with trends
   const stats = {
@@ -138,10 +176,28 @@ export default function Dashboard() {
   const totalBalance = useCountUp(Math.round(stats.totalBalance), 1300)
 
   // Calculate aggregate stats for charts
-  const userGrowthTotal = useMemo(() => growthUsers.reduce((a, b) => a + b, 0), [])
-  const tradeVolumeTotal = useMemo(() => volumeTrades.reduce((a, b) => a + b, 0), [])
-  const userGrowthAvg = useMemo(() => Math.round(userGrowthTotal / growthUsers.length), [userGrowthTotal])
-  const tradeVolumeAvg = useMemo(() => Math.round(tradeVolumeTotal / volumeTrades.length), [tradeVolumeTotal])
+  
+  
+
+  // Helpers to support independent chart periods
+  const periodToNum = (p: string) => (p === '6M' ? 6 : p === '12M' ? 12 : 24)
+
+  const sliceForPeriod = (arr: number[], period: string) => {
+    const n = periodToNum(period)
+    if (n <= arr.length) return arr.slice(-n)
+    const out: number[] = []
+    while (out.length < n) out.push(...arr)
+    return out.slice(-n)
+  }
+
+  // Data + aggregates per-chart (respect current independent periods)
+  const usersData = sliceForPeriod(growthUsers, usersPeriod)
+  const userGrowthTotalPeriod = usersData.reduce((a, b) => a + b, 0)
+  const userGrowthAvgPeriod = Math.round(userGrowthTotalPeriod / usersData.length)
+
+  const volumeData = sliceForPeriod(volumeTrades, volumePeriod)
+  const tradeVolumeTotalPeriod = volumeData.reduce((a, b) => a + b, 0)
+  const tradeVolumeAvgPeriod = Math.round(tradeVolumeTotalPeriod / volumeData.length)
 
   return (
     <div className="dashboard">
@@ -296,11 +352,11 @@ export default function Dashboard() {
               <div className="chart-meta">
                 <div className="chart-stat">
                   <span className="chart-stat-label">Total Growth</span>
-                  <span className="chart-stat-value">{userGrowthTotal.toLocaleString()}</span>
+                  <span className="chart-stat-value">{userGrowthTotalPeriod.toLocaleString()}</span>
                 </div>
                 <div className="chart-stat">
                   <span className="chart-stat-label">Avg per Month</span>
-                  <span className="chart-stat-value">{userGrowthAvg.toLocaleString()}</span>
+                  <span className="chart-stat-value">{userGrowthAvgPeriod.toLocaleString()}</span>
                 </div>
               </div>
             </div>
@@ -308,8 +364,8 @@ export default function Dashboard() {
               {['6M', '12M', '24M'].map(period => (
                 <button
                   key={period}
-                  className={`chart-btn ${selectedPeriod === period ? 'active' : ''}`}
-                  onClick={() => setSelectedPeriod(period)}
+                  className={`chart-btn ${usersPeriod === period ? 'active' : ''}`}
+                  onClick={() => setUsersPeriod(period)}
                 >
                   {period}
                 </button>
@@ -320,7 +376,7 @@ export default function Dashboard() {
             <div className="chart-container">
               <div className="chart-grid-bg"></div>
               <Sparkline 
-                data={growthUsers} 
+                data={sliceForPeriod(growthUsers, usersPeriod)} 
                 width={680} 
                 height={220} 
                 stroke="#8b5cf6"
@@ -338,11 +394,11 @@ export default function Dashboard() {
               <div className="chart-meta">
                 <div className="chart-stat">
                   <span className="chart-stat-label">Total Volume</span>
-                  <span className="chart-stat-value">{tradeVolumeTotal.toLocaleString()}K</span>
+                  <span className="chart-stat-value">{tradeVolumeTotalPeriod.toLocaleString()}K</span>
                 </div>
                 <div className="chart-stat">
                   <span className="chart-stat-label">Avg per Month</span>
-                  <span className="chart-stat-value">{tradeVolumeAvg.toLocaleString()}K</span>
+                  <span className="chart-stat-value">{tradeVolumeAvgPeriod.toLocaleString()}K</span>
                 </div>
               </div>
             </div>
@@ -350,8 +406,8 @@ export default function Dashboard() {
               {['6M', '12M', '24M'].map(period => (
                 <button
                   key={period}
-                  className={`chart-btn ${selectedPeriod === period ? 'active' : ''}`}
-                  onClick={() => setSelectedPeriod(period)}
+                  className={`chart-btn ${volumePeriod === period ? 'active' : ''}`}
+                  onClick={() => setVolumePeriod(period)}
                 >
                   {period}
                 </button>
@@ -362,7 +418,7 @@ export default function Dashboard() {
             <div className="chart-container">
               <div className="chart-grid-bg"></div>
               <Sparkline 
-                data={volumeTrades} 
+                data={sliceForPeriod(volumeTrades, volumePeriod)} 
                 width={680} 
                 height={220} 
                 stroke="#60a5fa"

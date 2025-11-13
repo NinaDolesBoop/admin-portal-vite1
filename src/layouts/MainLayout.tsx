@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import Dashboard from '../pages/Dashboard';
 import UserManagement from '../pages/UserManagement';
 import ClientManagement from '../pages/ClientManagement';
+import ApprovalManagement from '../pages/ApprovalManagement';
 
 type Route = 'dashboard' | 'usermanagement' | 'clients' | 'approval' | 'ticketing' | 'reports' | 'settings';
 
@@ -216,39 +217,7 @@ export default function MainLayout() {
           {route === 'usermanagement' && <UserManagement />}
           {route === 'clients' && <ClientManagement />}
 
-          {route === 'approval' && (
-            <div className="card">
-              <div className="card-header">
-                <div>
-                  <div className="title">Approval Management</div>
-                  <div className="muted">Review and approve user requests</div>
-                </div>
-              </div>
-              <div className="card-body">
-                <div style={{ padding: '60px 20px', textAlign: 'center' }}>
-                  <div style={{
-                    width: '80px',
-                    height: '80px',
-                    margin: '0 auto 20px',
-                    borderRadius: '50%',
-                    background: 'rgba(16, 185, 129, 0.1)',
-                    border: '2px solid rgba(16, 185, 129, 0.2)',
-                    display: 'grid',
-                    placeItems: 'center'
-                  }}>
-                    <svg style={{ width: '40px', height: '40px', stroke: '#10b981', opacity: 0.7 }} viewBox="0 0 24 24" fill="none" strokeWidth="2">
-                      <path d="M9 11l3 3L22 4"></path>
-                      <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
-                    </svg>
-                  </div>
-                  <h3 style={{ fontSize: '18px', fontWeight: '700', color: 'var(--text)', marginBottom: '8px' }}>
-                    Approval Management Coming Soon
-                  </h3>
-                  <p className="muted">This feature is under development</p>
-                </div>
-              </div>
-            </div>
-          )}
+          {route === 'approval' && <ApprovalManagement />}
 
           {route === 'ticketing' && (
             <div className="card">

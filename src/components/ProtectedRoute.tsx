@@ -7,7 +7,10 @@ interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
+
+  // while auth state is initializing, avoid redirecting to login (prevents flash)
+  if (isLoading) return null
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
