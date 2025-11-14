@@ -205,6 +205,7 @@ export default function Dashboard() {
       <div className="dashboard-header">
         <div>
           <h1 className="dashboard-title">Dashboard Overview</h1>
+          <div className="dashboard-subtitle">Welcome back — here’s what’s happening with FPMarkets right now.</div>
         </div>
         <div className="dashboard-meta">
           <div className="live-indicator">
@@ -212,6 +213,41 @@ export default function Dashboard() {
             Live Data
           </div>
           <span>Last updated: {new Date().toLocaleTimeString()}</span>
+          <div className="quick-actions">
+            <button className="btn btn-ghost" title="Refresh data" onClick={() => window.location.reload()}>
+              Refresh
+            </button>
+            <button className="btn btn-primary" title="Export report">
+              Export
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Hero Summary */}
+      <div className="dashboard-hero card">
+        <div className="hero-left">
+          <div className="hero-title">Hello, Admin 👋</div>
+          <div className="hero-sub">Quick summary of platform health and activity.</div>
+          <div className="hero-metrics">
+            <div className="hm-item">
+              <div className="hm-label">Active Users</div>
+              <div className="hm-value">{activeTraders.toLocaleString()}</div>
+            </div>
+            <div className="hm-item">
+              <div className="hm-label">24h Volume</div>
+              <div className="hm-value">${tradeVolumeTotalPeriod.toLocaleString()}K</div>
+            </div>
+            <div className="hm-item">
+              <div className="hm-label">System Health</div>
+              <div className="hm-value">Good</div>
+            </div>
+          </div>
+        </div>
+        <div className="hero-right">
+          <div className="hero-graphic">
+            <Sparkline data={sliceForPeriod(volumeTrades, '12M')} width={260} height={80} stroke="#60a5fa" showGradient />
+          </div>
         </div>
       </div>
 

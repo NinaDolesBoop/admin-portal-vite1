@@ -11,55 +11,68 @@ interface KycDocument {
   uploadedAt: string
 }
 
-interface ApprovalRequest {
+interface VerificationRequest {
   id: string
-  requester: string
+  name: string
   email: string
-  requestType: string
-  amount?: number
-  submittedAt: string
   status: ApprovalStatus
-  kyc?: KycDocument[]
+  submittedAt: string
+  documents: KycDocument[]
 }
 
-// Mock data
-const mockRequests: ApprovalRequest[] = [
+// Mock data - KYC Verification Requests
+const mockRequests: VerificationRequest[] = [
   {
-    id: 'req-1',
-    requester: 'Mimi',
+    id: 'ver-1',
+    name: 'Mimi',
     email: 'mimi@example.com',
-    requestType: 'Withdrawal',
-    amount: 5000,
     submittedAt: '2025-11-10 09:12',
     status: 'pending',
-    kyc: [
-      { id: 'd1', type: 'ID Card', filename: 'alice-id.jpg', url: '', uploadedAt: '2025-11-10 09:10' },
-      { id: 'd2', type: 'Proof of Address', filename: 'alice-utility.pdf', url: '', uploadedAt: '2025-11-10 09:11' },
+    documents: [
+      { id: 'd1', type: 'Identity Card (IC)', filename: 'mimi-ic.jpg', url: '', uploadedAt: '2025-11-10 09:10' },
+      { id: 'd2', type: 'Proof of Address', filename: 'mimi-utility.pdf', url: '', uploadedAt: '2025-11-10 09:11' },
     ]
   },
   {
-    id: 'req-2',
-    requester: 'Syafiq',
+    id: 'ver-2',
+    name: 'Syafiq',
     email: 'syafiq@example.com',
-    requestType: 'KYC Update',
     submittedAt: '2025-11-08 14:05',
     status: 'pending',
-    kyc: [
-      { id: 'd3', type: 'ID Card', filename: 'bob-id.png', url: '', uploadedAt: '2025-11-08 14:03' }
+    documents: [
+      { id: 'd3', type: 'Identity Card (IC)', filename: 'syafiq-ic.png', url: '', uploadedAt: '2025-11-08 14:03' },
+      { id: 'd4', type: 'Bank Statement', filename: 'syafiq-bank.pdf', url: '', uploadedAt: '2025-11-08 14:04' }
     ]
   },
-  { id: 'req-3', requester: 'Abu', email: 'abu@example.com', requestType: 'Account Closure', submittedAt: '2025-10-29 11:22', status: 'approved', kyc: [] },
-  { id: 'req-4', requester: 'Danish', email: 'danish@example.com', requestType: 'Large Transfer', amount: 25000, submittedAt: '2025-11-01 16:40', status: 'rejected', kyc: [] },
+  { 
+    id: 'ver-3', 
+    name: 'Abu', 
+    email: 'abu@example.com', 
+    submittedAt: '2025-10-29 11:22', 
+    status: 'approved', 
+    documents: [
+      { id: 'd5', type: 'Identity Card (IC)', filename: 'abu-ic.jpg', url: '', uploadedAt: '2025-10-29 11:20' }
+    ]
+  },
+  { 
+    id: 'ver-4', 
+    name: 'Danish', 
+    email: 'danish@example.com', 
+    submittedAt: '2025-11-01 16:40', 
+    status: 'rejected', 
+    documents: [
+      { id: 'd6', type: 'Identity Card (IC)', filename: 'danish-ic.jpg', url: '', uploadedAt: '2025-11-01 16:38' }
+    ]
+  },
   {
-    id: 'req-5',
-    requester: 'Charles',
+    id: 'ver-5',
+    name: 'Charles',
     email: 'charles@example.com',
-    requestType: 'Withdrawal',
-    amount: 1200,
     submittedAt: '2025-11-12 08:03',
     status: 'pending',
-    kyc: [
-      { id: 'd4', type: 'ID Card', filename: 'eva-id.jpg', url: '', uploadedAt: '2025-11-12 08:00' }
+    documents: [
+      { id: 'd7', type: 'Identity Card (IC)', filename: 'charles-ic.jpg', url: '', uploadedAt: '2025-11-12 08:00' },
+      { id: 'd8', type: 'Proof of Address', filename: 'charles-utility.pdf', url: '', uploadedAt: '2025-11-12 08:02' }
     ]
   },
 ]
@@ -77,9 +90,9 @@ const XIcon = () => (
 )
 
 export default function ApprovalManagement() {
-  const [requests, setRequests] = useState<ApprovalRequest[]>(mockRequests)
+  const [requests, setRequests] = useState<VerificationRequest[]>(mockRequests)
   const [filter, setFilter] = useState<'all' | ApprovalStatus>('all')
-  const [selected, setSelected] = useState<ApprovalRequest | null>(null)
+  const [selected, setSelected] = useState<VerificationRequest | null>(null)
   const [docStatuses, setDocStatuses] = useState<Record<string, 'pending' | 'verified' | 'rejected'>>({})
 
   const filtered = useMemo(() => {
@@ -103,18 +116,18 @@ export default function ApprovalManagement() {
     closeRequest()
   }
 
-  const initDocStatuses = (r: ApprovalRequest | null) => {
-    if (!r || !r.kyc) {
+  const initDocStatuses = (r: VerificationRequest | null) => {
+    if (!r || !r.documents) {
       setDocStatuses({})
       return
     }
     const map: Record<string, 'pending' | 'verified' | 'rejected'> = {}
-    r.kyc.forEach(d => (map[d.id] = 'pending'))
+    r.documents.forEach((d: KycDocument) => (map[d.id] = 'pending'))
     setDocStatuses(map)
   }
 
   // openRequest should init doc statuses
-  const openRequestWithInit = (r: ApprovalRequest) => {
+  const openRequestWithInit = (r: VerificationRequest) => {
     initDocStatuses(r)
     setSelected(r)
   }
@@ -126,8 +139,8 @@ export default function ApprovalManagement() {
     <div className="user-management">
       <div className="page-header">
         <div className="page-title-group">
-          <h1 className="page-title">Approval Management</h1>
-          <p className="page-subtitle">Review and process incoming approval requests</p>
+          <h1 className="page-title">Account Verification</h1>
+          <p className="page-subtitle">Review KYC and account verification submissions</p>
         </div>
       </div>
 
@@ -151,23 +164,21 @@ export default function ApprovalManagement() {
       <div className="users-card card">
         <div className="card-body">
           <div className="users-table-header">
-            <h3 className="table-title">Requests</h3>
+            <h3 className="table-title">Verification Requests</h3>
           </div>
 
           <div className="table-wrapper">
             <table>
               <colgroup>
                 <col style={{ width: '28%' }} />
+                <col style={{ width: '20%' }} />
                 <col style={{ width: '18%' }} />
-                <col style={{ width: '14%' }} />
-                <col style={{ width: '18%' }} />
-                <col style={{ width: '12%' }} />
+                <col style={{ width: '16%' }} />
               </colgroup>
               <thead>
                 <tr>
-                  <th>Requester</th>
-                  <th>Request</th>
-                  <th>Amount</th>
+                  <th>Name</th>
+                  <th>Email</th>
                   <th>Submitted</th>
                   <th style={{ textAlign: 'right' }}>Actions</th>
                 </tr>
@@ -176,16 +187,10 @@ export default function ApprovalManagement() {
                 {filtered.map((r) => (
                   <tr key={r.id}>
                     <td>
-                      <div>
-                        <button className="link" onClick={() => openRequestWithInit(r)} style={{ fontWeight: 600 }}>{r.requester}</button>
-                        <div style={{ color: 'var(--muted)', fontSize: 13 }}>{r.email}</div>
-                      </div>
+                      <button className="link" onClick={() => openRequestWithInit(r)} style={{ fontWeight: 600 }}>{r.name}</button>
                     </td>
-                    <td>
-                      <div style={{ fontWeight: 600 }}>{r.requestType}</div>
-                    </td>
-                    <td>
-                      {r.amount ? `$${r.amount.toLocaleString()}` : '-' }
+                    <td style={{ color: 'var(--muted)', fontSize: 13 }}>
+                      {r.email}
                     </td>
                     <td style={{ color: 'var(--muted)', fontSize: 13 }}>{r.submittedAt}</td>
                     <td>
@@ -204,7 +209,7 @@ export default function ApprovalManagement() {
                         >
                           <XIcon />
                         </button>
-                        <button className="action-btn" title="Check Submission" onClick={() => openRequestWithInit(r)}>
+                        <button className="action-btn" title="View Details" onClick={() => openRequestWithInit(r)}>
                           <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2">
                             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z" />
                             <circle cx="12" cy="12" r="3" />
@@ -223,12 +228,12 @@ export default function ApprovalManagement() {
         <div className="modal-overlay" onClick={closeRequest}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-                  <h2 className="modal-title">Details — {selected.requester}</h2>
+                  <h2 className="modal-title">Account Verification — {selected.name}</h2>
                   <button className="modal-close" onClick={closeRequest}>&times;</button>
                 </div>
             <div className="modal-body">
               <div style={{ marginBottom: 12 }}>
-                <strong>Request:</strong> {selected.requestType}
+                <strong>Email:</strong> {selected.email}
               </div>
               <div style={{ marginBottom: 12 }}>
                 <strong>Submitted:</strong> {selected.submittedAt}
@@ -236,8 +241,8 @@ export default function ApprovalManagement() {
               <div>
                 <strong>Documents</strong>
                 <div style={{ display: 'grid', gap: 12, marginTop: 8 }}>
-                  {selected.kyc && selected.kyc.length > 0 ? (
-                    selected.kyc.map(doc => {
+                  {selected.documents && selected.documents.length > 0 ? (
+                    selected.documents.map((doc: KycDocument) => {
                       const status = docStatuses[doc.id] ?? 'pending'
                       return (
                         <div key={doc.id} style={{ padding: 8, border: '1px solid var(--muted)', borderRadius: 6, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
